@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#161c27">
+<title>사업 검증 스타일 · 30초 테스트 · 펭귄랩</title>
+<meta name="description" content="초기 사업에서 매출 신호와 사용 신호 중 무엇을 먼저 확인하는지 보는 6문항 테스트 — 펭귄랩">
+<link rel="canonical" href="https://thepenguinlab.github.io/ab-type-test/">
+
+<!-- 공유 미리보기(OG). 크롤러는 JS를 실행하지 않으므로 결과별 카드는
+     /a/ /b/ /mix/ 정적 페이지가 각자 들고 있다. 여기는 랜딩 카드. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="펭귄랩">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://thepenguinlab.github.io/ab-type-test/">
+<meta property="og:title" content="너 사업 검증할 때 뭘 먼저 보냐? · 30초 테스트">
+<meta property="og:description" content="매출 신호부터 볼까, 사용 신호부터 볼까? 지금 먼저 줄이려는 불확실성을 6문항으로 확인한다.">
+<meta property="og:image" content="https://thepenguinlab.github.io/ab-type-test/assets/og/og-main.png">
+<meta property="og:image:secure_url" content="https://thepenguinlab.github.io/ab-type-test/assets/og/og-main.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="펭귄랩 사업 검증 스타일 30초 테스트">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="너 사업 검증할 때 뭘 먼저 보냐? · 30초 테스트">
+<meta name="twitter:description" content="매출 신호부터 볼까, 사용 신호부터 볼까? 지금 먼저 줄이려는 불확실성을 6문항으로 확인한다.">
+<meta name="twitter:image" content="https://thepenguinlab.github.io/ab-type-test/assets/og/og-main.png">
+<style>
+  :root{
+    --bg:#161c27; --bg-2:#1d2431; --panel:#252d3e; --panel-2:#2e3749;
+    --line:#3a4457; --line-2:#4b5569;
+    --txt:#eef1f6; --txt-2:#aab2c2; --txt-3:#727b8c;
+    --accent:#c9a25f; --accent-soft:#d8b878; --accent-dim:rgba(201,162,95,.14);
+    --cool:#6f8fb8; --cool-soft:#8fb0d8; --cool-dim:rgba(111,143,184,.16);
+    --warn:#e0644f; --warn-dim:rgba(224,100,79,.14);
+    --radius:18px; --radius-s:12px; --maxw:480px;
+    --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", "Noto Sans KR", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--bg); color:var(--txt); font-family:var(--font);
+    -webkit-font-smoothing:antialiased;}
+  body{line-height:1.6; letter-spacing:-0.01em; min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(201,162,95,.07), transparent 60%),
+      radial-gradient(900px 500px at 100% 100%, rgba(111,143,184,.05), transparent 60%),
+      var(--bg);}
+  #app{max-width:var(--maxw); margin:0 auto; padding:0 20px;
+    min-height:100vh; display:flex; flex-direction:column;
+    padding-top:env(safe-area-inset-top); padding-bottom:calc(24px + env(safe-area-inset-bottom));}
+  .screen{flex:1; display:flex; flex-direction:column; animation:fade .35s ease both;}
+  @keyframes fade{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  @keyframes pop{from{opacity:0; transform:translateY(12px) scale(.985);} to{opacity:1; transform:none;}}
+  @keyframes bobin{from{opacity:0; transform:translateY(18px) scale(.9);} to{opacity:1; transform:none;}}
+  @keyframes draw{from{stroke-dashoffset:100;} to{stroke-dashoffset:0;}}
+  @keyframes grow{from{transform:scaleX(0);} to{transform:scaleX(1);}}
+  /* 30초 속도감·접근성: 모션 줄이기 요청 존중 — 모든 전환/애니메이션 즉시 완료 */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation:none !important; transition:none !important;}
+    .donut-svg path{stroke-dashoffset:0 !important;}
+  }
+
+  .brand{display:flex; align-items:center; gap:9px; padding:22px 2px 0; color:var(--txt-3);
+    font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:600;}
+  .brand .dot{width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent);}
+
+  /* ---------- Landing ---------- */
+  .hero{position:relative; padding:18px 2px 0; text-align:center; z-index:1;}
+  /* 스포트라이트 + 비네트로 마스코트 앵커링 */
+  .hero .spot{position:absolute; left:50%; top:38%; width:340px; height:340px; transform:translate(-50%,-50%);
+    background:radial-gradient(closest-side, rgba(201,162,95,.20), rgba(201,162,95,.06) 45%, transparent 72%);
+    pointer-events:none; z-index:-1;}
+  .hero img.mascot{width:222px; max-width:76vw; height:auto; display:block; margin:0 auto; position:relative;
+    animation:bobin .55s cubic-bezier(.2,.9,.3,1.2) both; filter:drop-shadow(0 20px 34px rgba(0,0,0,.6));}
+  /* 갈림길(A/B) 모티프 — 이 앱의 개념. 과하지 않게 마스코트 발치에 살짝. */
+  .hero-fork{position:absolute; right:calc(50% - 128px); bottom:-6px; width:56px; height:56px; border-radius:15px;
+    background:#F3ECDD; box-shadow:0 8px 20px -6px rgba(0,0,0,.6); transform:rotate(-7deg);
+    display:flex; align-items:center; justify-content:center; border:1px solid rgba(0,0,0,.12);}
+  .hero-fork img{width:40px; height:40px; display:block;}
+  .kicker{color:var(--accent); font-size:13px; font-weight:800; letter-spacing:.02em; margin:-6px 0 12px; text-align:center;}
+  h1.head{font-size:31px; line-height:1.28; font-weight:800; letter-spacing:-0.025em; text-align:center;}
+  h1.head .hl{color:var(--accent-soft);}
+  .sub{color:var(--txt-2); font-size:15px; font-weight:500; margin:16px auto 0; max-width:21em; text-align:center;}
+  .meta{color:var(--txt-3); font-size:13px; margin-top:10px; text-align:center;}
+
+  .vs{margin:26px 0 6px; display:flex; gap:10px;}
+  .vs-card{flex:1; background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border:1px solid var(--line); border-radius:var(--radius-s); padding:15px 14px;}
+  .vs-card .g{font-size:12px; font-weight:800; letter-spacing:.08em; padding:5px 0; border-radius:7px;
+    text-align:center; margin-bottom:11px;}
+  .vs-card.a .g{color:var(--accent-soft); background:var(--accent-dim); border:1px solid rgba(201,162,95,.3);}
+  .vs-card.b .g{color:var(--cool-soft); background:var(--cool-dim); border:1px solid rgba(111,143,184,.32);}
+  .vs-card .t{font-size:14.5px; font-weight:800; line-height:1.4;}
+  .vs-card .d{font-size:12.5px; color:var(--txt-3); margin-top:6px; line-height:1.5;}
+
+  /* ---------- Buttons ---------- */
+  .cta{display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:18px 20px; border:none; border-radius:14px; cursor:pointer;
+    font-family:var(--font); font-size:16.5px; font-weight:800; letter-spacing:-0.01em;
+    background:linear-gradient(180deg,var(--accent-soft),var(--accent));
+    color:#1a1206; transition:transform .12s ease;
+    box-shadow:0 10px 26px -10px rgba(201,162,95,.6);}
+  .cta:active{transform:translateY(1px) scale(.995);}
+  .ghost{display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:15px 20px; border:1px solid var(--line-2); border-radius:14px; cursor:pointer;
+    font-family:var(--font); font-size:14.5px; font-weight:700; color:var(--txt-2);
+    background:transparent; transition:border-color .2s, color .2s;}
+  .ghost:active{border-color:var(--accent); color:var(--txt);}
+  .stickycta{position:sticky; bottom:0; padding-top:16px; margin-top:auto;
+    background:linear-gradient(180deg,transparent, var(--bg) 42%);}
+  /* 결과 화면은 캡처·공유가 목적이라 떠 있는 버튼이 내용을 가리면 안 됨 */
+  .endcta{padding-top:16px; margin-top:6px;}
+  .cta-row{display:flex; gap:10px; margin-top:10px;}
+  .cta-row>*{flex:1;}
+  .foot{color:var(--txt-3); font-size:11.5px; line-height:1.6; text-align:center; margin-top:22px; padding:0 6px;}
+
+  /* ---------- Test ---------- */
+  .top{position:sticky; top:0; z-index:5; padding:18px 0 14px;
+    background:linear-gradient(180deg,var(--bg) 62%, transparent);}
+  .prow{display:flex; align-items:center; justify-content:space-between; margin-bottom:11px;}
+  .prow .back{background:none; border:none; color:var(--txt-3); font-size:14px; cursor:pointer;
+    font-family:var(--font); font-weight:700; padding:4px 2px;}
+  .prow .back:disabled{opacity:.28; cursor:default;}
+  .prow .count{color:var(--txt-3); font-size:13px; font-weight:800;}
+  .prow .count b{color:var(--accent-soft);}
+  .track{height:5px; background:var(--line); border-radius:99px; overflow:hidden;}
+  .fill{height:100%; border-radius:99px; background:linear-gradient(90deg,var(--accent),var(--accent-soft));
+    transition:width .35s cubic-bezier(.4,0,.2,1);}
+
+  .qwrap{flex:1; display:flex; flex-direction:column; justify-content:center; padding:8px 0 6px;}
+  /* 씬앵커: 다크잉크 컷아웃을 밝은 칩 위 스티커처럼 (영상 세계관 톤) */
+  .anchor{width:56px; height:56px; border-radius:16px; background:#F3ECDD; display:flex;
+    align-items:center; justify-content:center; margin-bottom:16px; transform:rotate(-4deg);
+    box-shadow:0 8px 18px -5px rgba(0,0,0,.55); border:1px solid rgba(0,0,0,.12);
+    animation:bobin .4s cubic-bezier(.2,.9,.3,1.2) both;}
+  .anchor img{width:40px; height:40px; display:block;}
+  .scene{color:var(--cool-soft); font-size:13px; font-weight:800; letter-spacing:.02em; margin-bottom:12px;}
+  .qtext{font-size:25px; line-height:1.4; font-weight:800; letter-spacing:-0.025em;}
+  .picks{display:flex; flex-direction:column; gap:12px; margin:26px 0 8px;}
+  .pick{display:flex; align-items:center; gap:13px; width:100%; text-align:left; cursor:pointer;
+    padding:19px 17px; border-radius:15px; border:1px solid var(--line);
+    background:var(--panel); color:var(--txt); font-family:var(--font);
+    font-size:16.5px; font-weight:700; line-height:1.4; letter-spacing:-0.02em;
+    transition:border-color .14s, background .14s, transform .1s; min-height:68px;}
+  .pick:active{transform:scale(.99);}
+  .pick .mk{width:26px; height:26px; border-radius:8px; flex-shrink:0; font-size:12px; font-weight:800;
+    display:flex; align-items:center; justify-content:center; color:var(--txt-3);
+    border:1px solid var(--line-2); background:var(--bg-2); transition:all .14s;}
+  .pick.on{border-color:var(--accent); background:var(--accent-dim);}
+  .pick.on .mk{border-color:var(--accent); background:var(--accent); color:#1a1206;}
+  .qhint{color:var(--txt-3); font-size:12.5px; margin-top:6px; text-align:center;}
+
+  /* ---------- Result ---------- */
+  .rhero{text-align:center; padding:24px 0 0;}
+  .rhero img{width:190px; height:auto; margin:0 auto 4px; display:block;
+    animation:bobin .6s cubic-bezier(.2,.9,.3,1.2) both; filter:drop-shadow(0 18px 34px rgba(0,0,0,.6));}
+  .rhero .badge{display:inline-block; font-size:12.5px; font-weight:800; letter-spacing:.1em;
+    padding:6px 14px; border-radius:99px; margin-bottom:10px;}
+  .rhero .code{font-size:52px; font-weight:800; letter-spacing:.04em; line-height:1.1;}
+  .rhero .tname{font-size:23px; font-weight:800; margin-top:4px;}
+  .rhero .tone{color:var(--txt-2); font-size:15px; font-weight:500; margin:12px auto 0; max-width:23em; line-height:1.55;}
+  .tA .code,.tA .tname{color:var(--accent-soft);}
+  .tA .badge{color:var(--accent-soft); background:var(--accent-dim); border:1px solid rgba(201,162,95,.3);}
+  .tB .code,.tB .tname{color:var(--cool-soft);}
+  .tB .badge{color:var(--cool-soft); background:var(--cool-dim); border:1px solid rgba(111,143,184,.32);}
+  .tM .code,.tM .tname{color:var(--warn);}
+  .tM .badge{color:var(--warn); background:var(--warn-dim); border:1px solid rgba(224,100,79,.32);}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-top:16px;
+    animation:pop .45s ease both;}
+  .card h3{font-size:12.5px; letter-spacing:.1em; color:var(--txt-3);
+    font-weight:800; margin-bottom:15px;}
+
+  /* gauge */
+  .gauge .ends{display:flex; justify-content:space-between; font-size:13px; font-weight:800; margin-bottom:9px;}
+  .gauge .ends .l{color:var(--accent-soft);} .gauge .ends .r{color:var(--cool-soft);}
+  .gauge .bar{position:relative; height:12px; border-radius:99px; overflow:hidden;
+    background:linear-gradient(90deg, rgba(201,162,95,.35), rgba(90,98,115,.35) 50%, rgba(111,143,184,.35));}
+  .gauge .mid{position:absolute; left:calc(50% - 8px); width:16px; top:0; bottom:0; background:var(--warn-dim);}
+  .gauge .knob{position:absolute; top:-5px; width:22px; height:22px; border-radius:50%;
+    border:3px solid var(--bg); transform:translateX(-50%);
+    transition:left .8s cubic-bezier(.3,0,.15,1); box-shadow:0 4px 14px rgba(0,0,0,.5);}
+  .gauge .scale{display:flex; justify-content:space-between; color:var(--txt-3); font-size:11.5px; margin-top:11px;}
+  .gauge .verdict{font-size:13.5px; font-weight:500; color:var(--txt-2); margin-top:12px; line-height:1.55;}
+  .gauge .verdict b{color:var(--txt); font-weight:800;}
+
+  .rx{border-left:2px solid var(--accent); padding-left:15px; margin-bottom:19px;}
+  .rx:last-child{margin-bottom:0;}
+  .rx.b{border-left-color:var(--cool);}
+  .rx.warn{border-left-color:var(--warn);}
+  .rx .rxh{font-size:14.5px; font-weight:800; margin-bottom:9px;}
+  .rx ul{list-style:none;}
+  .rx li{font-size:14.5px; font-weight:500; color:var(--txt-2); line-height:1.55; padding-left:15px; position:relative; margin-bottom:7px;}
+  .rx li:last-child{margin-bottom:0;}
+  .rx li b{color:var(--txt); font-weight:800;}
+  .rx li::before{content:""; position:absolute; left:0; top:9px; width:5px; height:5px; border-radius:50%; background:var(--accent);}
+  .rx.b li::before{background:var(--cool);}
+  .rx.warn li::before{background:var(--warn);}
+  .rx .who{font-size:12.5px; color:var(--txt-3); margin-top:10px;}
+
+  .banner{border-radius:var(--radius-s); padding:16px 17px; margin-top:16px;
+    background:var(--warn-dim); border:1px solid rgba(224,100,79,.3); animation:pop .45s ease both;}
+  .banner .bh{font-size:14.5px; font-weight:800; color:var(--warn); margin-bottom:7px;}
+  .banner .bd{font-size:14px; font-weight:500; color:var(--txt-2); line-height:1.55;}
+  .banner .bd b{color:var(--txt); font-weight:800;}
+
+  /* ── share card = 결과 화면의 히어로(캡처 한 장으로 자랑 완성). 튀어나오게. ── */
+  .sharecard{position:relative; border-radius:var(--radius); padding:20px 20px 18px; margin-top:14px;
+    background:linear-gradient(160deg,#1c2230,#171d29); overflow:hidden;
+    border:1px solid var(--accent); /* 골드 헤어라인 */
+    box-shadow:0 2px 0 rgba(201,162,95,.5), 14px 18px 40px -14px rgba(0,0,0,.85), 0 0 0 4px rgba(201,162,95,.06);}
+  .sharecard::before{content:""; position:absolute; inset:0 0 auto 0; height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-soft));}
+  .sharecard.tB{border-color:var(--cool-soft); box-shadow:0 2px 0 rgba(143,176,216,.5), 14px 18px 40px -14px rgba(0,0,0,.85), 0 0 0 4px rgba(111,143,184,.07);}
+  .sharecard.tB::before{background:linear-gradient(90deg,var(--cool),var(--cool-soft));}
+  .sharecard.tM{border-color:var(--warn); box-shadow:0 2px 0 rgba(224,100,79,.5), 14px 18px 40px -14px rgba(0,0,0,.85), 0 0 0 4px rgba(224,100,79,.07);}
+  .sharecard.tM::before{background:linear-gradient(90deg,var(--warn),#ef8a78);}
+  .sharecard .sc-top{display:flex; align-items:center; gap:8px; color:var(--txt-3);
+    font-size:11px; letter-spacing:.14em; font-weight:700; text-transform:uppercase;}
+  .sharecard .sc-top .dot{width:6px; height:6px; border-radius:50%; background:var(--accent);}
+  .sharecard .sc-row{display:flex; align-items:center; gap:16px; margin-top:12px;}
+  .sharecard .sc-mascot{width:132px; max-width:38%; height:auto; flex-shrink:0;
+    filter:drop-shadow(0 14px 22px rgba(0,0,0,.6));}
+  .sharecard .sc-id{min-width:0;}
+  .sharecard .sc-code{font-size:48px; font-weight:800; line-height:1.02; letter-spacing:.01em;}
+  .sharecard .sc-name{font-size:16.5px; font-weight:800; margin-top:3px;}
+  /* 카드 안 A:B 미니 게이지 */
+  .sharecard .sc-gauge{margin-top:15px;}
+  .sharecard .sc-gends{display:flex; justify-content:space-between; font-size:11.5px; font-weight:800; color:var(--txt-3); margin-bottom:6px;}
+  .sharecard .sc-gbar{position:relative; height:9px; border-radius:99px;
+    background:linear-gradient(90deg, rgba(201,162,95,.4), rgba(90,98,115,.35) 50%, rgba(111,143,184,.4));}
+  .sharecard .sc-gknob{position:absolute; top:50%; width:16px; height:16px; border-radius:50%;
+    border:3px solid #171d29; transform:translate(-50%,-50%); box-shadow:0 3px 10px rgba(0,0,0,.6);}
+  .sharecard .sc-line{font-size:13.5px; font-weight:500; color:var(--txt-2); margin-top:14px; line-height:1.55;}
+  .sharecard .sc-tag{font-size:11.5px; color:var(--txt-3); margin-top:13px; letter-spacing:.02em;}
+  .sharetools{margin-top:12px;}
+
+  /* ── 결과 3악장 섹션 라벨 ── */
+  .actlbl{display:flex; align-items:center; gap:10px; margin:30px 2px 4px;
+    color:var(--txt-3); font-size:11.5px; font-weight:800; letter-spacing:.16em; text-transform:uppercase;}
+  .actlbl .n{display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px;
+    border-radius:7px; background:var(--accent-dim); color:var(--accent-soft); font-size:11px; letter-spacing:0;}
+  .actlbl .ln{flex:1; height:1px; background:var(--line);}
+
+  /* ── 판정 대시보드 ── */
+  .dash{background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border:1px solid var(--line); border-radius:var(--radius); padding:20px 18px; margin-top:14px;
+    animation:pop .45s ease both;}
+  .dash .badge{display:inline-block; font-size:12px; font-weight:800; letter-spacing:.08em;
+    padding:5px 12px; border-radius:99px; margin-bottom:9px;}
+  .dash-hero{display:flex; align-items:center; gap:18px;}
+  .donut{position:relative; width:clamp(104px,15.5vh,124px); aspect-ratio:1; flex-shrink:0;}
+  .donut-svg{width:100%; height:100%; display:block; overflow:visible;}
+  .donut-svg path{stroke-dasharray:100; animation:draw .55s cubic-bezier(.3,0,.15,1) both;}
+  .donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .dc-pct{font-size:30px; font-weight:800; line-height:1;}
+  .dc-code{font-size:13px; font-weight:800; margin-top:3px;}
+  .dash-id{min-width:0;}
+  .dash-id .tname{font-size:20px; font-weight:800; line-height:1.22;}
+  .hero-sub{font-size:12.5px; font-weight:500; color:var(--txt-3); margin-top:4px;}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 13px; margin-top:12px; font-size:11.5px; font-weight:600; color:var(--txt-2);}
+  .legend span{display:inline-flex; align-items:center; gap:5px;}
+  .legend .lg{width:9px; height:9px; border-radius:3px; display:inline-block;}
+  .legend .lg.a{background:var(--accent);} .legend .lg.b{background:var(--cool-soft);}
+  .legend .lg.w{background:var(--warn); border-radius:99px;}
+  .dash .tone{color:var(--txt-2); font-size:14.5px; font-weight:500; line-height:1.55; margin-top:16px;}
+
+  /* 대시보드 내부 게이지: 카드 박스 벗겨 히어로에 붙임 */
+  .hgauge{margin-top:18px; padding-top:18px; border-top:1px solid var(--line);}
+
+  /* 데이터 블록(구분선으로 3덩어리 리듬) */
+  .dblk{margin-top:20px; padding-top:18px; border-top:1px solid var(--line);}
+  .dblk-h{font-size:12px; letter-spacing:.09em; color:var(--txt-3); font-weight:800; text-transform:uppercase; margin-bottom:13px;}
+
+  /* 6문항 시그니처 그리드 */
+  .sig-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:9px;}
+  .sig-cell{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:11px 10px 10px;
+    display:flex; flex-direction:column; align-items:flex-start; gap:9px;}
+  .sig-cell.dec{border-color:rgba(224,100,79,.45); box-shadow:inset 0 0 0 1px rgba(224,100,79,.16);}
+  .sig-ic{width:34px; height:34px; border-radius:9px; background:#F3ECDD; display:flex; align-items:center;
+    justify-content:center; transform:rotate(-3deg); box-shadow:0 4px 10px -3px rgba(0,0,0,.5);}
+  .sig-ic img{width:24px; height:24px; display:block;}
+  .sig-meta{display:flex; align-items:center; justify-content:space-between; width:100%; gap:6px;}
+  .sig-q{font-size:10.5px; color:var(--txt-3); font-weight:600; line-height:1.3; min-width:0;}
+  .sig-q b{color:var(--warn); font-weight:800;}
+  .sig-tag{flex-shrink:0; width:21px; height:21px; border-radius:6px; font-size:11.5px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;}
+  .sig-tag.a{background:var(--accent); color:#1a1206;} .sig-tag.b{background:var(--cool-soft); color:#171d29;}
+
+  /* 성향 분해 랭킹바 */
+  .traits{display:flex; flex-direction:column; gap:15px;}
+  .trait-hd{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:7px;}
+  .trait-t{font-size:13.5px; font-weight:800;}
+  .trait-n{font-size:11.5px; font-weight:800; color:var(--txt-3);}
+  .trait-n.a{color:var(--accent-soft);} .trait-n.b{color:var(--cool-soft);}
+  .trait-bar{display:flex; gap:2px; height:10px; border-radius:99px; overflow:hidden; background:var(--line);}
+  .trait-bar span{display:block; animation:grow .55s cubic-bezier(.3,0,.15,1) both;}
+  .tb-a{background:var(--accent); transform-origin:left;}
+  .tb-b{background:var(--cool-soft); transform-origin:right;}
+  .trait-sub{font-size:11.5px; color:var(--txt-3); font-weight:500; margin-top:6px;}
+
+  /* 스탯 타일 */
+  .tiles{display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-top:20px;
+    padding-top:18px; border-top:1px solid var(--line);}
+  .tile{background:var(--bg-2); border:1px solid var(--line); border-radius:12px; padding:13px 8px; text-align:center;}
+  .tile-v{font-size:21px; font-weight:800; line-height:1.1;}
+  .tile-v.a{color:var(--accent-soft);} .tile-v.b{color:var(--cool-soft);}
+  .tile-v small{font-size:12px; font-weight:700; color:var(--txt-3); margin-left:1px;}
+  .tile-k{font-size:10px; color:var(--txt-3); font-weight:600; margin-top:6px; line-height:1.35;}
+
+  /* 강등된 app02 브릿지 */
+  .bridge{display:block; text-decoration:none; margin-top:20px; padding:13px 15px;
+    border:1px solid var(--line); border-radius:var(--radius-s); transition:border-color .2s;}
+  .bridge:active{border-color:var(--accent);}
+  .bridge-t{display:block; font-size:13px; font-weight:800; color:var(--txt-2);}
+  .bridge-d{display:block; font-size:11.5px; font-weight:500; color:var(--txt-3); margin-top:4px; line-height:1.5;}
+  .bridge-d b{color:var(--txt-2); font-weight:700;}
+  .foot-fine{opacity:.72;}
+
+  /* ============================================================
+     결과 = 스크롤 없는 한 화면 인포그래픽 포스터
+     ============================================================ */
+  /* 포스터는 정확히 첫 뷰포트를 채우되, 아래로 스크롤하면 app02 카드가 "다음 단계"로 등장 */
+  body.result-mode #app{height:100dvh; min-height:0; padding-top:0; padding-bottom:0;}
+  .result-screen{height:100%; min-height:0; overflow:hidden; display:flex; flex-direction:column;
+    padding-top:calc(env(safe-area-inset-top) + 6px); padding-bottom:calc(env(safe-area-inset-bottom) + 6px);}
+  .rtop{flex-shrink:0; display:flex; align-items:center; gap:8px; padding:6px 2px 0;
+    color:var(--txt-3); font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:700;}
+  .rtop .dot{width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent);}
+  .rbody{flex:1 1 auto; min-height:0; overflow:hidden; display:flex; flex-direction:column;
+    justify-content:center; gap:clamp(9px,1.9vh,18px); padding:clamp(6px,1.4vh,14px) 0;}
+  /* 큰 화면: 포스터를 세로 중앙에 두고 위아래 숨 트기 */
+  @media (min-height:920px){ .rbody{flex-grow:0; margin:auto 0; gap:20px;} }
+
+  /* 판정 블록 */
+  .jhero{display:flex; align-items:center; gap:clamp(12px,3.4vw,18px);}
+  .jid{min-width:0;}
+  .jid .badge{display:inline-block; font-size:11px; font-weight:800; letter-spacing:.05em;
+    padding:4px 10px; border-radius:99px; margin-bottom:7px;}
+  .jid .tname{font-size:clamp(19px,5.6vw,24px); font-weight:800; line-height:1.14;}
+  .jone{color:var(--txt-2); font-size:clamp(12.5px,3.5vw,14px); font-weight:500; line-height:1.5; margin-top:7px;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
+  .dc-pct{font-size:clamp(25px,7vw,31px); font-weight:800; line-height:1;}
+  .dc-code{font-size:12.5px; font-weight:800; margin-top:3px;}
+
+  /* 얇은 축 게이지 한 줄 */
+  .jgauge{display:flex; align-items:center; gap:10px;}
+  .jg-end{flex-shrink:0; font-size:12px; font-weight:800;}
+  .jg-end.l{color:var(--accent-soft);} .jg-end.r{color:var(--cool-soft);}
+  .jg-bar{position:relative; flex:1; height:8px; border-radius:99px;
+    background:linear-gradient(90deg, rgba(201,162,95,.4), rgba(90,98,115,.35) 50%, rgba(111,143,184,.4));}
+  .jg-bar .mid{position:absolute; left:calc(50% - 7px); width:14px; top:0; bottom:0; background:var(--warn-dim);}
+  .jg-bar .knob{position:absolute; top:50%; width:18px; height:18px; border-radius:50%;
+    border:3px solid var(--bg); transform:translate(-50%,-50%);
+    transition:left .8s cubic-bezier(.3,0,.15,1); box-shadow:0 3px 12px rgba(0,0,0,.55);}
+
+  /* 6문항 시그니처 인라인(6칸) */
+  .sigrow{display:flex; gap:clamp(5px,1.6vw,9px);}
+  .sigc{flex:1; min-width:0; background:var(--bg-2); border:1px solid var(--line); border-radius:11px;
+    padding:8px 3px 7px; display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .sigc.dec{border-color:rgba(224,100,79,.5); box-shadow:inset 0 0 0 1px rgba(224,100,79,.15);}
+  .sigc-ic{width:clamp(26px,7vw,32px); height:clamp(26px,7vw,32px); border-radius:8px; background:#F3ECDD;
+    display:flex; align-items:center; justify-content:center; transform:rotate(-3deg); box-shadow:0 3px 8px -2px rgba(0,0,0,.5);}
+  .sigc-ic img{width:72%; height:72%; display:block;}
+  .sigc-tag{width:20px; height:20px; border-radius:6px; font-size:11px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;}
+  .sigc-tag.a{background:var(--accent); color:#1a1206;} .sigc-tag.b{background:var(--cool-soft); color:#171d29;}
+
+  /* 성향 분해 3바 (라벨+바+카운트 한 줄) */
+  .traits3{display:flex; flex-direction:column; gap:clamp(7px,1.5vh,11px);}
+  .trow{display:flex; align-items:center; gap:10px;}
+  .trow-t{flex:0 0 39%; font-size:12px; font-weight:700; color:var(--txt-2); line-height:1.2;}
+  .trow-bar{flex:1; display:flex; gap:2px; height:8px; border-radius:99px; overflow:hidden; background:var(--line);}
+  .trow-bar i{display:block; animation:grow .55s cubic-bezier(.3,0,.15,1) both;}
+  .trow-bar .tb-a{background:var(--accent); transform-origin:left;}
+  .trow-bar .tb-b{background:var(--cool-soft); transform-origin:right;}
+  .trow-n{flex:0 0 auto; min-width:26px; text-align:right; font-size:11px; font-weight:800; color:var(--txt-3);}
+
+  /* 처방 (핵심 3줄) */
+  .rxblk-h{font-size:11.5px; letter-spacing:.09em; text-transform:uppercase; color:var(--txt-3); font-weight:800; margin-bottom:9px;}
+  .rxblk .rx{list-style:none; border-left:2px solid var(--accent); padding-left:14px;}
+  .rxblk .rx.b{border-left-color:var(--cool);}
+  .rxblk .rx.warn{border-left-color:var(--warn);}
+  .rxblk .rx li{font-size:clamp(12.5px,3.5vw,14px); font-weight:500; color:var(--txt-2); line-height:1.42;
+    padding-left:14px; position:relative; margin-bottom:clamp(5px,1.1vh,8px);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .rxblk .rx li:last-child{margin-bottom:0;}
+  .rxblk .rx li b{color:var(--txt); font-weight:800;}
+  .rxblk .rx li::before{content:""; position:absolute; left:0; top:8px; width:5px; height:5px; border-radius:50%; background:var(--accent);}
+  .rxblk .rx.b li::before{background:var(--cool);} .rxblk .rx.warn li::before{background:var(--warn);}
+  .rxmix{margin-top:10px; font-size:12px; font-weight:800; color:var(--warn); letter-spacing:-.01em;}
+
+  /* 하단 고정 CTA */
+  .rcta{flex-shrink:0; padding-top:clamp(8px,1.6vh,14px);}
+  .rmini{display:flex; align-items:center; justify-content:center; gap:10px; margin-top:10px;}
+  .linklike{background:none; border:none; padding:0; cursor:pointer; font-family:var(--font);
+    color:var(--txt-3); font-size:12px; font-weight:700; text-decoration:none;}
+  .linklike:active{color:var(--accent-soft);}
+  .rmini .sep{color:var(--line-2); font-size:12px;}
+  .rfine{text-align:center; color:var(--txt-3); font-size:10px; opacity:.66; margin-top:8px;}
+
+  /* 공유 시트(오버레이) — 캡처 히어로 카드 + 공유 액션 */
+  .sheet{position:fixed; inset:0; z-index:100; display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .25s ease;}
+  .sheet.open{opacity:1; pointer-events:auto;}
+  .sheet-scrim{position:absolute; inset:0; background:rgba(6,8,12,.72);}
+  .sheet-panel{position:relative; width:100%; max-width:var(--maxw); margin:0 auto; max-height:92dvh; overflow-y:auto;
+    background:var(--bg); border:1px solid var(--line-2); border-bottom:none;
+    border-top-left-radius:22px; border-top-right-radius:22px;
+    padding:18px 18px calc(20px + env(safe-area-inset-bottom));
+    transform:translateY(18px); transition:transform .28s cubic-bezier(.2,.9,.3,1.1);}
+  .sheet.open .sheet-panel{transform:none;}
+  .sheet-hint{text-align:center; color:var(--txt-3); font-size:11.5px; font-weight:600; margin-top:14px;}
+  .sheet .sharebox{margin-top:10px;}
+  .sheet .cta-row{margin-top:12px;}
+  .sheet-close{display:block; margin:14px auto 2px;}
+  /* 복사 직후에만 나타나는 "유튜브 가서 붙여넣기" 버튼 (YT_VIDEO_URL 있을 때만 렌더) */
+  .ytgo{margin-top:10px; text-decoration:none; border-color:var(--accent); color:var(--accent-soft);}
+  .ytgo[hidden]{display:none !important;}
+
+  .sharebox{background:var(--panel-2); border:1px dashed var(--line-2); border-radius:var(--radius-s);
+    padding:16px; font-size:13.5px; color:var(--txt-2); line-height:1.65; white-space:pre-wrap;}
+  .toast{position:fixed; left:50%; bottom:34px; transform:translateX(-50%) translateY(20px);
+    background:var(--accent-soft); color:#1a1206; font-size:13.5px; font-weight:800;
+    padding:11px 22px; border-radius:99px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s; z-index:120; box-shadow:0 10px 30px -8px rgba(0,0,0,.6);}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  hr.div{border:none; border-top:1px solid var(--line); margin:26px 0 2px;}
+  .deeper{margin-top:16px; display:block; text-decoration:none;}
+
+  /* 포스터 하단 스크롤 유도(모바일) / 데스크톱 퀵링크 */
+  .scrollcue{display:none; color:var(--accent-soft); font-size:12px; font-weight:800;}
+  .deskonly{display:none;}
+
+  /* ============================================================
+     app02 크로스셀 — 사이드 레일 / 모바일 하단 카드
+     ============================================================ */
+  .layout{width:100%;}
+  .rail{display:none;}                 /* 모바일 기본: 숨김(퍼널 집중) */
+
+  .promo{position:relative; overflow:hidden;
+    background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border:1px solid var(--line-2); border-radius:var(--radius); padding:22px 20px;
+    box-shadow:0 20px 50px -24px rgba(0,0,0,.8);}
+  .promo::before{content:""; position:absolute; inset:0 0 auto 0; height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--cool-soft));}
+  .promo-kick{display:flex; align-items:center; gap:8px; color:var(--accent-soft);
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase; font-weight:800;}
+  .promo-kick .dot{width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent);}
+  .promo-h{font-size:22px; line-height:1.28; font-weight:800; letter-spacing:-0.02em; margin-top:12px;}
+  .promo-h .hl{color:var(--accent-soft);}
+  .promo-sub{font-size:13.5px; font-weight:500; color:var(--txt-2); line-height:1.55; margin-top:10px;}
+  .promo-sub b{color:var(--txt); font-weight:700;}
+  .promo-block-h{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--txt-3);
+    font-weight:800; margin:20px 0 11px; display:flex; align-items:baseline; gap:8px;}
+  .promo-block-h .pbh-s{font-size:10.5px; letter-spacing:0; text-transform:none; color:var(--txt-3); font-weight:600; opacity:.8;}
+
+  /* 4축 다이어그램 */
+  .axis4{display:flex; flex-direction:column; gap:9px;}
+  .ax{display:flex; align-items:center; gap:10px;}
+  .axl,.axr{flex:0 0 auto; font-size:11.5px; font-weight:800; white-space:nowrap;}
+  .axl.s{color:var(--accent-soft);} .axr.r{color:var(--cool-soft);}
+  .axbar{position:relative; flex:1; height:6px; border-radius:99px;
+    background:linear-gradient(90deg, var(--accent-dim), rgba(90,98,115,.22) 50%, var(--cool-dim));}
+  .axbar i{position:absolute; left:50%; top:50%; width:9px; height:9px; border-radius:50%;
+    background:var(--txt-2); transform:translate(-50%,-50%); box-shadow:0 0 0 3px var(--panel);}
+
+  /* 16유형 지도 */
+  .tgrid16{display:grid; grid-template-columns:repeat(4,1fr); gap:6px;}
+  .tcell{font-size:11px; font-weight:800; letter-spacing:.04em; text-align:center;
+    padding:9px 2px; border-radius:8px; border:1px solid var(--line);}
+  .tcell.s{color:var(--accent-soft); background:var(--accent-dim); border-color:rgba(201,162,95,.28);}
+  .tcell.r{color:var(--cool-soft); background:var(--cool-dim); border-color:rgba(111,143,184,.3);}
+
+  .promo-bridge{font-size:12px; font-weight:500; color:var(--txt-2); line-height:1.5; margin-top:16px;
+    padding:11px 13px; border-left:2px solid var(--accent); background:var(--accent-dim); border-radius:0 8px 8px 0;}
+  .promo-bridge b{color:var(--txt); font-weight:800;}
+  .promo-cta{display:flex; align-items:center; justify-content:center; gap:8px; text-decoration:none;
+    width:100%; padding:16px 18px; border-radius:13px; margin-top:16px;
+    font-family:var(--font); font-size:15px; font-weight:800; color:#1a1206;
+    background:linear-gradient(180deg,var(--accent-soft),var(--accent));
+    box-shadow:0 10px 26px -10px rgba(201,162,95,.6); transition:transform .12s ease, box-shadow .2s ease;}
+  .promo-cta:active{transform:translateY(1px) scale(.995);}
+  @media(hover:hover){ .promo-cta:hover{transform:translateY(-1px); box-shadow:0 16px 36px -12px rgba(201,162,95,.72);} }
+  .promo-trust{font-size:11px; color:var(--txt-3); line-height:1.5; margin-top:14px;}
+  .promo-hint{display:none;}
+
+  /* 모바일: 결과일 때만 포스터 아래 큰 카드로 등장(다음 단계) */
+  body.result-mode .rail{display:block; max-width:var(--maxw); margin:0 auto;
+    padding:0 20px calc(30px + env(safe-area-inset-bottom)); animation:fade .5s ease both;}
+  body.result-mode .rail .promo-hint{display:flex; align-items:center; justify-content:center; gap:8px;
+    color:var(--txt-3); font-size:12px; font-weight:800; letter-spacing:.04em; padding:20px 0 12px;}
+
+  /* 데스크톱: 2단 레이아웃 — 테스트 컬럼 + 사이드 레일(큰 검은 여백 제거) */
+  @media(min-width:1024px){
+    body{overflow-x:hidden;}
+    .layout{display:grid; grid-template-columns:minmax(0,520px) 380px; gap:clamp(56px,7vw,110px);
+      justify-content:center; align-items:start; max-width:1220px; margin:0 auto; padding:0 24px;}
+    #app{max-width:none; margin:0;}
+    body.result-mode #app{height:100vh;}
+    .rail{display:flex; flex-direction:column; justify-content:center;
+      position:sticky; top:0; align-self:start; height:100vh; padding:28px 0; overflow-y:auto;}
+    .promo-hint{display:none !important;}
+    .scrollcue{display:none !important;}
+    .deskonly{display:inline;}
+    /* 테스트 진행 중엔 레일 은은하게(집중 방해 최소) */
+    body[data-view="test"] .rail{opacity:.5; filter:saturate(.72); transition:opacity .3s;}
+  }
+  @media(max-width:1023px){ .scrollcue{display:inline;} }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div id="app"></div>
+  <!-- app02 크로스셀: 데스크톱=우측 사이드 레일 / 모바일 결과=포스터 아래 큰 카드.
+       실제 app02 자산(4축·16유형·실제 유형명·실제 사례)만 반영. 지어낸 통계·후기 없음. -->
+  <aside class="rail" id="rail" aria-label="돈 습관 16유형 테스트">
+    <div class="promo-hint">↓ 별도 테스트 · 돈 습관 16유형</div>
+    <div class="promo">
+      <div class="promo-kick"><span class="dot"></span>별도 테스트 · 돈 습관</div>
+      <h2 class="promo-h">사업 검증 말고,<br><span class="hl">내 돈 습관도 보기.</span></h2>
+      <p class="promo-sub">이 테스트와는 다른 주제다. 20개의 선택으로 보호·시간·주도권·운영 선호를 <b>4글자 코드</b>로 살펴본다.</p>
+
+      <div class="promo-block-h">돈 심리 4축</div>
+      <div class="axis4">
+        <div class="ax"><span class="axl s">보호 S</span><span class="axbar"><i></i></span><span class="axr r">기회 R</span></div>
+        <div class="ax"><span class="axl s">미래 D</span><span class="axbar"><i></i></span><span class="axr r">현재 P</span></div>
+        <div class="ax"><span class="axl s">자기결정 I</span><span class="axbar"><i></i></span><span class="axr r">공동결정 A</span></div>
+        <div class="ax"><span class="axl s">구조 C</span><span class="axbar"><i></i></span><span class="axr r">적응 F</span></div>
+      </div>
+
+      <div class="promo-block-h">16유형 지도 <span class="pbh-s">4축 조합</span></div>
+      <div class="tgrid16">
+        <span class="tcell s" title="철벽 관리자">SDIC</span>
+        <span class="tcell s" title="신중 전략가">SDIF</span>
+        <span class="tcell s" title="책임 조율가">SDAC</span>
+        <span class="tcell s" title="생활 균형가">SDAF</span>
+        <span class="tcell s" title="금고 설계자">SPIC</span>
+        <span class="tcell s" title="본능 방어형">SPIF</span>
+        <span class="tcell s" title="관계 보호자">SPAC</span>
+        <span class="tcell s" title="감정 완충가">SPAF</span>
+        <span class="tcell r" title="복리 설계자">RDIC</span>
+        <span class="tcell r" title="냉정 개척가">RDIF</span>
+        <span class="tcell r" title="비전 조율가">RDAC</span>
+        <span class="tcell r" title="확장 코디네이터">RDAF</span>
+        <span class="tcell r" title="실전 투자자">RPIC</span>
+        <span class="tcell r" title="자유 추구자">RPIF</span>
+        <span class="tcell r" title="무드 크리에이터">RPAC</span>
+        <span class="tcell r" title="감각 사업가">RPAF</span>
+      </div>
+
+      <div class="promo-bridge">여기서 나온 <b>매출·사용 검증 스타일</b>과 돈 습관 유형은 같은 축이 아니다. 서로 다른 질문으로 따로 본다.</div>
+
+      <a class="promo-cta" href="../app02-money-psych/index.html">돈 습관 16유형 테스트 →</a>
+
+      <div class="promo-trust">두 테스트 모두 자기 점검용 콘텐츠이며, 심리 진단이나 투자·창업 성공 예측이 아니다.</div>
+    </div>
+  </aside>
+</div>
+<div class="toast" id="toast">복사됐다</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   펭귄랩 app03 — 사업 검증 스타일 30초 테스트
+   축: A(매출 신호 우선) ↔ B(사용 신호 우선)
+   app02 돈 습관 테스트와는 다른 구성개념이다.
+   ============================================================ */
+
+/* ---------- 유튜브 영상 URL (설정 지점) ----------
+   1화 영상 업로드 후 여기 한 줄만 채우면 공유 시트에 "유튜브 가서 붙여넣기 →" 버튼이 살아난다.
+   비어 있으면(현재 상태) 그 버튼은 아예 렌더하지 않는다 — 빈 곳으로 보내지 않기 위함. */
+const YT_VIDEO_URL = "";
+
+/* ---------- 아트 슬롯 ----------
+   마스코트 이미지 경로는 여기 한 곳으로 모아둔다. 트랙 B에서 고해상 신규 아트가
+   오면 이 상수만 갈아끼우면 된다. 레이아웃은 object-fit/max-width로 더 큰 아트도
+   안 깨지게 잡아뒀다. (결과 타입별 이미지는 gen_pages.py 정적 페이지와 파일명 일치) */
+const MASCOT = {
+  landing:"assets/outfit_varsity_P.png",  // 랜딩 히어로
+  A:"assets/outfit_suit_pinstripe.png",   // A형 결과·공유카드
+  B:"assets/outfit_hiphop_dollar.png",    // B형 결과·공유카드
+  M:"assets/expr_uhh.png"                 // 섞임 결과·공유카드
+};
+
+/* ---------- 씬앵커(컷아웃) ----------
+   영상 세계관의 다크잉크 선화. 밝은 칩 위에 스티커처럼 얹는다(CSS .anchor).
+   문항별로 장면을 시각적으로 앵커링. index 순서 = QUESTIONS 순서. */
+const SCENE_ANCHOR = ["app_icon","digits_up","lock_timer","handshake_deal","feed_wall","fork_ab"];
+function anchorSVG(name){ return "assets/cutouts/"+name+".svg"; }
+
+/* ---------- 선택 분해(정직한 파생 축) ----------
+   6문항을 2개씩 세 갈래로 묶는다. 지어낸 모집단 통계가 아니라
+   "네 6번의 선택"을 재배열한 것뿐. 각 갈래의 A쏠림 = A개수/2. */
+const TRAIT_GROUPS = [
+  { t:"가치의 증거", sub:"지불과 반복 사용 중 무엇을 먼저 보나", qs:[0,3] },
+  { t:"실험 방식", sub:"판매 실험과 사용 관찰 중 무엇을 고르나", qs:[1,4] },
+  { t:"성공 기준", sub:"초기 성과를 어떤 숫자로 판단하나", qs:[2,5] }
+];
+
+/* 도넛 세그먼트용 극좌표(0°=위, 시계방향). pathLength=100 정규화로 균일 애니메이션. */
+function polarXY(cx,cy,r,deg){ const a=deg*Math.PI/180; return [cx+r*Math.sin(a), cy-r*Math.cos(a)]; }
+function arcD(cx,cy,r,d0,d1){
+  const [x0,y0]=polarXY(cx,cy,r,d0), [x1,y1]=polarXY(cx,cy,r,d1);
+  const large=(d1-d0)>180?1:0;
+  return `M${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 ${large} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+}
+/* 6칸 도넛: 각 칸 = 한 문항의 선택(A=골드, B=쿨블루). */
+function signatureDonut(answers){
+  const CX=100, CY=100, R=78, seg=360/answers.length, gap=6;
+  let arcs="";
+  answers.forEach((v,i)=>{
+    const d0=i*seg+gap/2, d1=(i+1)*seg-gap/2;
+    const col = v==="a" ? "var(--accent)" : "var(--cool-soft)";
+    arcs += `<path d="${arcD(CX,CY,R,d0,d1)}" pathLength="100" stroke="${col}" stroke-width="17"
+      fill="none" stroke-linecap="round" style="animation-delay:${(i*0.06).toFixed(2)}s"/>`;
+  });
+  return `<svg class="donut-svg" viewBox="0 0 200 200" role="img" aria-label="6문항 A/B 선택 시그니처">${arcs}</svg>`;
+}
+
+/* 30초 약속을 지키려면 읽는 분량이 곧 설계 제약이다.
+   6문항 · 총 300자대 · 문항당 50자 안팎으로 묶어둘 것. 늘리지 말 것. */
+const QUESTIONS = [
+  { scene:"아이디어 첫날",
+    q:"가장 먼저 줄이고 싶은\n불확실성은?",
+    a:"누가 얼마를 낼지",
+    b:"누가 왜 반복해서 쓸지" },
+  { scene:"2주짜리 실험",
+    q:"딱 하나만 할 수 있다.\n뭘 고름?",
+    a:"유료 파일럿·선주문을 받아본다",
+    b:"핵심 기능을 쓰는 장면을 관찰한다" },
+  { scene:"첫 대시보드",
+    q:"초기 핵심 지표 하나만\n남긴다면?",
+    a:"유료 전환·결제 금액",
+    b:"재사용·추천·잔존" },
+  { scene:"반응은 좋은데",
+    q:"사람들이 좋아하지만\n아직 결제는 없다.",
+    a:"고객·가격·제안을 다시 시험한다",
+    b:"반복 사용 이유를 더 선명하게 만든다" },
+  { scene:"첫 고객 세 명",
+    q:"요구가 제각각이다.\n다음 행동은?",
+    a:"수동으로라도 유료 문제를 해결한다",
+    b:"공통 행동을 찾아 제품을 다듬는다" },
+  { scene:"다음 30일",
+    q:"무슨 신호가 보여야\n계속 밀겠나?",
+    a:"반복해서 돈 내는 고객",
+    b:"반복해서 돌아오는 사용자" }
+];
+
+const RESULTS = {
+  A:{ cls:"tA", code:"A형", badge:"매출 신호 우선",
+    name:"매출 검증형",
+    one:"아이디어의 가치를 고객의 지불 의사로 빨리 확인하는 편이다. 수익 불확실성을 먼저 줄이는 데 강하다.",
+    img:MASCOT.A,
+    rxh:"이 방식이 강해지는 조건",
+    rx:[
+      "<b>잘 맞는 상황.</b> 문제가 선명한 B2B·서비스·전문시장, 또는 현금 여유가 짧을 때.",
+      "<b>첫 실험.</b> 한 고객군에 한 문제·한 가격을 제시하고 소규모 유료 파일럿을 받아봐.",
+      "<b>놓치지 말 것.</b> 결제만 보지 말고 실제 사용·재구매도 함께 기록해야 가짜 수요를 거른다.",
+      "<b>판단 규칙.</b> 한 번의 거절로 버리지 말고 고객·제안·가격을 나눠 시험한 뒤 다음 결정을 내려."
+    ],
+    who:"강점: 수익 가능성을 빨리 확인함 · 맹점: 덜 다듬어진 제품을 너무 일찍 탈락시킬 수 있음.",
+    bridge:"돈 의사결정의 보호·기회 선호와는 <b>별개의 결과</b>다.",
+    shareLine:"나는 매출 검증형. 누가 얼마를 낼지부터 확인해 수익 불확실성을 줄이는 편.",
+    // 댓글용 한 줄 (댓글창에 그대로 붙이는 짧은 버전)
+    cmt:"누가 얼마를 낼지부터 확인하는 쪽." },
+
+  B:{ cls:"tB", code:"B형", badge:"사용 신호 우선",
+    name:"사용 검증형",
+    one:"사람이 실제로 쓰고 다시 돌아오는 이유를 먼저 확인하는 편이다. 제품 가치의 불확실성을 줄이는 데 강하다.",
+    img:MASCOT.B,
+    rxh:"이 방식이 강해지는 조건",
+    rx:[
+      "<b>잘 맞는 상황.</b> 소비자 서비스·커뮤니티·네트워크처럼 반복 사용이 가치의 핵심일 때.",
+      "<b>첫 실험.</b> 핵심 행동 하나만 작게 만들고 누가 다시 오는지, 왜 이탈하는지 관찰해.",
+      "<b>놓치지 말 것.</b> 사용자가 늘어도 사업은 아닐 수 있다. 수익화 실험 날짜를 미리 잡아둬.",
+      "<b>판단 규칙.</b> 칭찬보다 재사용·추천 같은 행동을 보고, 반복 신호가 없으면 문제부터 다시 봐."
+    ],
+    who:"강점: 실제 사용 가치를 깊게 확인함 · 맹점: 반응을 매출 가능성으로 착각할 수 있음.",
+    bridge:"돈 의사결정의 보호·기회 선호와는 <b>별개의 결과</b>다.",
+    shareLine:"나는 사용 검증형. 누가 왜 다시 돌아오는지부터 확인해 제품 불확실성을 줄이는 편.",
+    cmt:"누가 왜 다시 돌아오는지부터 확인하는 쪽." },
+
+  M:{ cls:"tM", code:"균형형", badge:"매출·사용 동시 고려",
+    name:"이중 검증형",
+    one:"지불 신호와 사용 신호를 함께 본다. 강점은 균형이고, 관건은 매 실험마다 우선순위를 하나로 정하는 것이다.",
+    img:MASCOT.M,
+    rxh:"균형을 실행력으로 바꾸는 법",
+    rx:[
+      "<b>가장 위험한 가설부터.</b> 지금 모르는 게 지불 의사인지 반복 사용인지 먼저 적어.",
+      "<b>한 실험엔 한 주지표.</b> 다른 신호는 버리지 말고 보조지표로만 둬.",
+      "<b>순서로 결합해.</b> 사용→결제 또는 결제→사용처럼 두 실험을 연달아 설계해.",
+      "<b>현실 조건을 반영해.</b> 현금 여유가 짧으면 매출, 반복 사용이 핵심이면 사용 검증을 앞세워."
+    ],
+    who:"강점: 한쪽 지표에 속을 가능성을 낮춤 · 맹점: 우선순위가 없으면 실험이 느려질 수 있음.",
+    bridge:"균형은 실패가 아니다. <b>이번 실험의 우선순위</b>만 분명하면 된다.",
+    shareLine:"나는 이중 검증형. 매출과 사용을 함께 보되, 실험마다 먼저 확인할 가설을 하나 고르는 편.",
+    cmt:"매출도 사용도 보고, 위험한 가설부터 치는 쪽." }
+};
+
+/* ---------- 공유 URL ----------
+   카톡·트위터 크롤러는 JS를 실행하지 않는다. 같은 URL을 공유하면 결과가 뭐든 같은 카드가 뜬다.
+   그래서 결과마다 고유 OG 태그를 가진 정적 페이지(/a/, /b/, /mix/)를 두고 그쪽 URL을 공유한다.
+   그 페이지들은 _build/gen_pages.py 가 생성한다 — 문구 고칠 땐 거기서 고치고 다시 돌릴 것. */
+const SHARE_BASE = "https://thepenguinlab.github.io/ab-type-test/";
+const SHARE_PATH = { A:"a/", B:"b/", M:"mix/" };
+function shareURL(){
+  return SHARE_BASE + (state.result ? (SHARE_PATH[state.result.key] || "") : "");
+}
+
+/* ---------- 채점 ----------
+   answers: 'a'|'b' 배열 (6개)
+   aCount 4~6 → 매출 검증형 / 0~2 → 사용 검증형 / 정확히 3:3 → 이중 검증형
+   ------------------------------------------------ */
+function score(answers){
+  const n = answers.length;
+  const aCount = answers.filter(v=>v==="a").length;
+  let key;
+  if(aCount > n/2) key = "A";
+  else if(aCount < n/2) key = "B";
+  else key = "M";
+  const pos = Math.round((1 - aCount/n) * 100);  // 0=완전 A, 100=완전 B
+  const edge = Math.abs(aCount - (n-aCount));    // 우세 폭
+  return {aCount, bCount:n-aCount, n, key, pos, edge};
+}
+
+function verdictText(s){
+  // n=6이라 우세 폭(edge)은 2 / 4 / 6 세 가지뿐이다.
+  if(s.key==="A"){
+    if(s.edge===s.n) return s.n+"문항 모두 매출 신호를 골랐다. <b>매출 검증 선호가 매우 뚜렷하다.</b>";
+    if(s.edge===2)   return "A "+s.aCount+" : B "+s.bCount+". <b>매출 검증에 조금 더 기울었다.</b> 상황에 따라 사용 검증도 자연스럽게 병행한다.";
+    return "A "+s.aCount+" : B "+s.bCount+". <b>매출 검증 선호가 뚜렷하다.</b> 실제 사용 신호를 보조지표로 두면 판단이 단단해진다.";
+  }
+  if(s.key==="B"){
+    if(s.edge===s.n) return s.n+"문항 모두 사용 신호를 골랐다. <b>사용 검증 선호가 매우 뚜렷하다.</b>";
+    if(s.edge===2)   return "A "+s.aCount+" : B "+s.bCount+". <b>사용 검증에 조금 더 기울었다.</b> 상황에 따라 매출 검증도 자연스럽게 병행한다.";
+    return "A "+s.aCount+" : B "+s.bCount+". <b>사용 검증 선호가 뚜렷하다.</b> 수익화 시점을 미리 정하면 판단이 단단해진다.";
+  }
+  return "A "+s.aCount+" : B "+s.bCount+". <b>두 증거를 균형 있게 본다.</b> 성향을 억지로 한쪽에 넣기보다, 지금 가장 위험한 가설을 먼저 고르면 된다.";
+}
+
+/* ---------- state ---------- */
+const state = { view:"landing", i:0, answers:new Array(QUESTIONS.length).fill(null), result:null, t0:null, elapsed:null };
+const root = document.getElementById("app");
+
+function render(){
+  window.scrollTo(0,0);
+  // 결과 화면만 뷰포트 고정(스크롤 없는 포스터). 랜딩/테스트는 일반 스크롤.
+  document.body.classList.toggle("result-mode", state.view==="result");
+  document.body.setAttribute("data-view", state.view); // 사이드 레일 뷰별 강약 조절
+  if(state.view==="landing") root.innerHTML = viewLanding();
+  else if(state.view==="test") root.innerHTML = viewTest();
+  else root.innerHTML = viewResult();
+  bind();
+}
+
+function viewLanding(){
+  return `<div class="screen">
+    <div class="brand"><span class="dot"></span>펭귄랩 · 사업 검증 스타일</div>
+    <div class="hero">
+      <span class="spot"></span>
+      <img class="mascot" src="${MASCOT.landing}" alt="펭귄랩 마스코트">
+      <span class="hero-fork"><img src="${anchorSVG('fork_ab')}" alt=""></span>
+    </div>
+    <div class="kicker">6문항 · 30초 · 가입 없음</div>
+    <h1 class="head">너 사업 검증할 때<br><span class="hl">뭘 먼저 보냐?</span></h1>
+    <p class="sub">초기 사업은 매출과 사용을 모두 봐야 한다. 이 테스트는 네가 먼저 확인하려는 증거를 본다.</p>
+    <div class="vs">
+      <div class="vs-card a">
+        <div class="g">A형</div>
+        <div class="t">매출 검증형</div>
+        <div class="d">누가 얼마를 낼지부터 확인한다</div>
+      </div>
+      <div class="vs-card b">
+        <div class="g">B형</div>
+        <div class="t">사용 검증형</div>
+        <div class="d">누가 왜 다시 쓰는지부터 확인한다</div>
+      </div>
+    </div>
+    <p class="meta">정답 없음 · 현재 단계에서 먼저 줄이려는 불확실성을 본다</p>
+    <div class="stickycta">
+      <button class="cta" data-act="start">30초면 나온다 →</button>
+    </div>
+    <p class="foot">성격이나 성공 가능성을 진단하지 않습니다. 현재의 사업 검증 선호를 점검하는 자기 이해용 콘텐츠입니다.</p>
+  </div>`;
+}
+
+function viewTest(){
+  const i = state.i, q = QUESTIONS[i], n = QUESTIONS.length, cur = state.answers[i];
+  // 진행바: 1번 문항 빈 막대(0%) 제거. 답한 문항 수 반영 + 최소 9% 베이스라인.
+  const answered = state.answers[i] != null ? 1 : 0;
+  const prog = Math.max(9, Math.round((i + answered) / n * 100));
+  const anchor = SCENE_ANCHOR[i];
+  return `<div class="screen">
+    <div class="top">
+      <div class="prow">
+        <button class="back" data-act="back" ${i===0?"disabled":""}>‹ 이전</button>
+        <div class="count"><b>${i+1}</b> / ${n}</div>
+      </div>
+      <div class="track"><div class="fill" style="width:${prog}%"></div></div>
+    </div>
+    <div class="qwrap">
+      ${anchor?`<span class="anchor"><img src="${anchorSVG(anchor)}" alt=""></span>`:""}
+      <div class="scene">${q.scene}</div>
+      <div class="qtext">${q.q.replace(/\n/g,"<br>")}</div>
+      <div class="picks">
+        <button class="pick ${cur==="a"?"on":""}" data-pick="a"><span class="mk">A</span><span>${q.a}</span></button>
+        <button class="pick ${cur==="b"?"on":""}" data-pick="b"><span class="mk">B</span><span>${q.b}</span></button>
+      </div>
+      <div class="qhint">정답은 없다. 지금 실제로 할 행동에 가까운 쪽을 골라.</div>
+    </div>
+  </div>`;
+}
+
+function viewResult(){
+  const s = state.result, r = RESULTS[s.key];
+  const knobColor = s.key==="A" ? "var(--accent)" : s.key==="B" ? "var(--cool-soft)" : "var(--warn)";
+
+  /* 댓글에 그대로 붙이는 텍스트다. 길면 아무도 안 붙인다 — 유형 + 한 줄 + 링크까지 3줄. */
+  const shareText =
+`나 ${r.code} · ${r.name} (A ${s.aCount} : B ${s.bCount})
+${r.cmt}
+너는 어느 쪽? 6문항 30초 → ${shareURL()}`;
+
+  /* ===== 한 화면 포스터 — 전부 6개 답에서 실제로 파생되는 값만 ===== */
+  const n = s.n, aC = s.aCount, bC = s.bCount, ans = state.answers;
+  const domCount = Math.max(aC, bC);                        // 우세한 쪽 개수
+  const heroBig  = s.key==="M" ? "50:50" : Math.round(domCount/n*100) + "%";
+
+  // 6문항 시그니처(아이콘 + A/B 미니칩 한 줄). scene은 title 툴팁으로만.
+  const sigCells = ans.map((v,i)=>{
+    return `<div class="sigc" title="Q${i+1} · ${QUESTIONS[i].scene}">
+      <span class="sigc-ic"><img src="${anchorSVG(SCENE_ANCHOR[i])}" alt=""></span>
+      <span class="sigc-tag ${v==="a"?"a":"b"}">${v==="a"?"A":"B"}</span>
+    </div>`;
+  }).join("");
+
+  // 성향 분해(2문항씩 3갈래, A쏠림 %). 한 줄에 라벨+바+카운트.
+  const traitBars = TRAIT_GROUPS.map(g=>{
+    const gA = g.qs.filter(i=>ans[i]==="a").length, gN = g.qs.length;
+    const pA = Math.round(gA/gN*100);
+    return `<div class="trow">
+      <span class="trow-t">${g.t}</span>
+      <span class="trow-bar" role="img" aria-label="${g.t}: A ${gA} B ${gN-gA}"><i class="tb-a" style="width:${pA}%"></i><i class="tb-b" style="width:${100-pA}%"></i></span>
+      <span class="trow-n">${gA}·${gN-gA}</span>
+    </div>`;
+  }).join("");
+
+  // 처방: 핵심 3줄만 화면에 (RESULTS.rx 원본 배열은 그대로, 표시만 slice)
+  const rxItems = r.rx.slice(0,3).map(x=>`<li>${x}</li>`).join("");
+
+  return `<div class="screen result-screen ${r.cls}">
+    <div class="rtop"><span class="dot"></span>테스트 완료${state.elapsed?" · "+state.elapsed+"초":""}</div>
+
+    <div class="rbody">
+      <!-- 판정: 도넛% + 코드 + 타입명 + 한줄요약 -->
+      <div class="jhero">
+        <div class="donut">
+          ${signatureDonut(ans)}
+          <div class="donut-center">
+            <span class="dc-pct" style="color:${knobColor}">${heroBig}</span>
+            <span class="dc-code" style="color:${knobColor}">${r.code}</span>
+          </div>
+        </div>
+        <div class="jid">
+          <div class="badge">${r.badge}</div>
+          <div class="tname">${r.name}</div>
+          <div class="jone">${r.one}</div>
+        </div>
+      </div>
+
+      <!-- 얇은 축 게이지 한 줄 (실제 knob 위치 pos) -->
+      <div class="jgauge">
+        <span class="jg-end l">A ${aC}</span>
+        <span class="jg-bar"><span class="mid"></span><span class="knob" id="knob" style="left:50%; background:${knobColor}"></span></span>
+        <span class="jg-end r">B ${bC}</span>
+      </div>
+
+      <!-- 6문항 시그니처 인라인 -->
+      <div class="sigrow">${sigCells}</div>
+
+      <!-- 성향 분해 3바 -->
+      <div class="traits3">${traitBars}</div>
+
+      <!-- 처방 (핵심 3줄) -->
+      <div class="rxblk">
+        <div class="rxblk-h">${r.rxh}</div>
+        <ul class="rx ${s.key==="B"?"b":s.key==="M"?"warn":""}">${rxItems}</ul>
+        ${s.key!=="M" ? `<div class="rxmix">다른 신호도 버리지 말고 보조지표로 함께 기록해.</div>` : ``}
+      </div>
+    </div>
+
+    <!-- 하단 고정 CTA: 자랑 = 공짜 광고 -->
+    <div class="rcta">
+      <button class="cta" data-act="openSheet">결과 자랑하기 →</button>
+      <div class="rmini">
+        <button class="linklike" data-act="restart">다시 하기</button>
+        <span class="sep">·</span>
+        <span class="scrollcue">↓ 아래로 · 별도 돈 습관 16유형</span>
+        <a class="linklike deskonly" href="../app02-money-psych/index.html">돈 습관 16유형 보기 →</a>
+      </div>
+      <p class="rfine">성격 진단 아님 · 현재 사업 검증 선호를 점검하는 콘텐츠</p>
+    </div>
+  </div>
+
+  <!-- 공유 시트(오버레이): 캡처용 히어로 카드 + 공유 액션. 첫 화면 밖. -->
+  <div class="sheet" id="sheet">
+    <div class="sheet-scrim" data-act="closeSheet"></div>
+    <div class="sheet-panel">
+      <div class="sharecard ${r.cls}" id="shareCard">
+        <div class="sc-top"><span class="dot"></span>펭귄랩 · 사업 검증 스타일</div>
+        <div class="sc-row">
+          <img class="sc-mascot" src="${r.img}" alt="">
+          <div class="sc-id">
+            <div class="sc-code" style="color:${knobColor}">${r.code}</div>
+            <div class="sc-name">${r.name}</div>
+          </div>
+        </div>
+        <div class="sc-gauge">
+          <div class="sc-gends"><span>A ${s.aCount}</span><span>B ${s.bCount}</span></div>
+          <div class="sc-gbar"><span class="sc-gknob" style="left:${s.pos}%; background:${knobColor}"></span></div>
+        </div>
+        <div class="sc-line">${r.shareLine}</div>
+        <div class="sc-tag">너는 어떤 증거부터 보는지 30초면 나온다</div>
+      </div>
+      <div class="sheet-hint">이 카드 꾹 눌러 캡처하거나 ↓</div>
+      <div class="sharebox" id="shareText">${shareText}</div>
+      <div class="cta-row">
+        <button class="cta" data-act="share">공유하기</button>
+        <button class="ghost" data-act="copy">댓글용 텍스트 복사</button>
+      </div>
+      ${YT_VIDEO_URL ? `<a class="ghost ytgo" id="ytGo" href="${YT_VIDEO_URL}" target="_blank" rel="noopener" hidden>유튜브 가서 붙여넣기 →</a>` : ``}
+      <button class="linklike sheet-close" data-act="closeSheet">닫기</button>
+    </div>
+  </div>`;
+}
+
+function pick(v){
+  state.answers[state.i] = v;
+  const el = root.querySelector(`.pick[data-pick="${v}"]`);
+  if(el){ root.querySelectorAll(".pick").forEach(x=>x.classList.remove("on")); el.classList.add("on"); }
+  setTimeout(()=>{
+    if(state.i < QUESTIONS.length-1){ state.i++; render(); }
+    else {
+      state.result = score(state.answers);
+      state.elapsed = state.t0 ? ((Date.now()-state.t0)/1000).toFixed(1) : null;
+      state.view = "result"; render();
+      requestAnimationFrame(()=>{
+        const k = document.getElementById("knob");
+        if(k) setTimeout(()=>{ k.style.left = state.result.pos + "%"; }, 60);
+      });
+    }
+  }, 150);
+}
+
+function bind(){
+  root.querySelectorAll("[data-act]").forEach(el=>{
+    el.addEventListener("click", e=>{
+      const act = el.getAttribute("data-act");
+      if(act==="start"){ state.answers=new Array(QUESTIONS.length).fill(null); state.i=0; state.t0=Date.now(); state.view="test"; render(); }
+      else if(act==="back"){ if(state.i>0){ state.i--; render(); } }
+      else if(act==="restart"){ state.answers=new Array(QUESTIONS.length).fill(null); state.i=0; state.result=null; state.elapsed=null; state.view="landing"; render(); }
+      else if(act==="copy"){ e.preventDefault(); copyShare(); }
+      else if(act==="share"){ e.preventDefault(); doShare(); }
+      else if(act==="openSheet"){ e.preventDefault(); const sh=document.getElementById("sheet"); if(sh) sh.classList.add("open"); }
+      else if(act==="closeSheet"){ e.preventDefault(); const sh=document.getElementById("sheet"); if(sh) sh.classList.remove("open"); }
+    });
+  });
+  root.querySelectorAll(".pick").forEach(el=>{
+    el.addEventListener("click", ()=> pick(el.getAttribute("data-pick")));
+  });
+}
+
+function shareString(){
+  const el = document.getElementById("shareText");
+  return el ? el.innerText : "";
+}
+function doShare(){
+  // 네이티브 공유 시트는 url을 따로 붙여주므로 본문에서는 URL 줄을 뺀다 (중복 방지)
+  const text = shareString().split("\n").filter(l=>!/^https?:\/\//.test(l.trim())).join("\n").trim();
+  if(navigator.share){
+    navigator.share({title:"펭귄랩 · 사업 검증 스타일", text, url:shareURL()})
+      .catch(()=>{ /* 사용자가 취소 */ });
+  } else copyShare("공유 텍스트 복사됐다");
+}
+// 복사에 성공해야 "유튜브 가서 붙여넣기"가 뜬다. 순서를 지켜야 붙여넣을 게 손에 있다.
+function revealYT(){
+  const a = document.getElementById("ytGo");
+  if(a) a.hidden = false;
+}
+function copyShare(msg){
+  const text = shareString();
+  if(!text) return;
+  const done = ()=>{ showToast(msg||"복사됐다 · 유튜브 댓글에 붙여넣어"); revealYT(); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  } else fallbackCopy(text,done);
+}
+function fallbackCopy(text,cb){
+  const ta=document.createElement("textarea");
+  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); cb(); }catch(e){ showToast("복사 실패 — 길게 눌러 복사해"); }
+  document.body.removeChild(ta);
+}
+let toastTimer=null;
+function showToast(m){
+  const t=document.getElementById("toast");
+  t.textContent=m; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+
+/* ---------- 자가검증 ---------- */
+window.__selfCheck = (function(){
+  const errs=[], n=QUESTIONS.length, seen={};
+  if(n<6 || n>8) errs.push("문항 수 "+n+" (6~8 범위 아님)");
+  QUESTIONS.forEach((q,i)=>{ if(!q.a||!q.b||!q.q||!q.scene) errs.push("문항 "+(i+1)+" 필드 누락"); });
+  // 2^n 전수 탐색: 모든 분기 도달 가능 + 결과 데이터 완비
+  for(let m=0; m<(1<<n); m++){
+    const ans=[]; for(let i=0;i<n;i++) ans.push((m>>i&1)?"a":"b");
+    const s=score(ans);
+    seen[s.key]=(seen[s.key]||0)+1;
+    if(!RESULTS[s.key]) errs.push("RESULTS 누락: "+s.key);
+    if(s.pos<0||s.pos>100) errs.push("게이지 범위 이탈: "+s.pos);
+  }
+  ["A","B","M"].forEach(k=>{ if(!seen[k]) errs.push("도달 불가 분기: "+k); });
+  // 판정 문구가 실제로 몇 종류나 도달하는지 (죽은 분기 색출)
+  const verdicts = new Set();
+  for(let m=0; m<(1<<n); m++){
+    const ans=[]; for(let i=0;i<n;i++) ans.push((m>>i&1)?"a":"b");
+    verdicts.add(verdictText(score(ans)).replace(/\d+/g,"#"));
+  }
+  // A 3종(6:0/5:1/4:2) + B 3종 + 균형 1종 = 7
+  if(verdicts.size !== 7) errs.push("판정 문구 "+verdicts.size+"종 (7 아님 — 죽은 분기 의심)");
+  // 읽기 분량(30초 근거)
+  const chars = QUESTIONS.reduce((t,q)=>t+q.scene.length+q.q.length+q.a.length+q.b.length,0);
+  const out = {errs, seen, total:1<<n, chars, charsPerQ:Math.round(chars/n)};
+  if(errs.length) console.error("[SELF-CHECK 실패]", out);
+  else console.log("%c[SELF-CHECK 통과] "+n+"문항 · 전수 "+(1<<n)+"조합 · A"+seen.A+"/B"+seen.B+"/균형"+seen.M+
+    " · 총 "+chars+"자("+Math.round(chars/n)+"자/문항)", "color:#c9a25f;font-weight:700");
+  return out;
+})();
+
+render();
+</script>
+</body>
+</html>

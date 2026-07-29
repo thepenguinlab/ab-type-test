@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e13">
+<title>B형 · 사용 검증형 — 펭귄랩 사업 검증 스타일</title>
+<meta name="description" content="누가 왜 다시 돌아오는지부터 확인해 제품 불확실성을 줄이는 편. 너는 어떤 증거부터 보는지 6문항으로 확인해봐.">
+<link rel="canonical" href="https://thepenguinlab.github.io/ab-type-test/b/">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="펭귄랩">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:url" content="https://thepenguinlab.github.io/ab-type-test/b/">
+<meta property="og:title" content="B형 · 사용 검증형 — 펭귄랩 사업 검증 스타일">
+<meta property="og:description" content="누가 왜 다시 돌아오는지부터 확인해 제품 불확실성을 줄이는 편. 너는 어떤 증거부터 보는지 6문항으로 확인해봐.">
+<meta property="og:image" content="https://thepenguinlab.github.io/ab-type-test/assets/og/og-b.png">
+<meta property="og:image:secure_url" content="https://thepenguinlab.github.io/ab-type-test/assets/og/og-b.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="B형 — 사용 검증형 · 펭귄랩 30초 진단">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="B형 · 사용 검증형 — 펭귄랩 사업 검증 스타일">
+<meta name="twitter:description" content="누가 왜 다시 돌아오는지부터 확인해 제품 불확실성을 줄이는 편. 너는 어떤 증거부터 보는지 6문항으로 확인해봐.">
+<meta name="twitter:image" content="https://thepenguinlab.github.io/ab-type-test/assets/og/og-b.png">
+<style>
+  :root{
+    --bg:#0c0e13; --bg-2:#12151c; --panel:#161a23;
+    --line:#262c38; --line-2:#333a48;
+    --txt:#eef1f6; --txt-2:#aab2c2; --txt-3:#727b8c;
+    --accent:#c9a25f; --accent-soft:#d8b878; --accent-dim:rgba(201,162,95,.14);
+    --cool:#6f8fb8; --cool-soft:#8fb0d8; --cool-dim:rgba(111,143,184,.16);
+    --warn:#e0644f; --warn-dim:rgba(224,100,79,.14);
+    --radius:18px; --radius-s:12px; --maxw:480px;
+    --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Segoe UI", "Noto Sans KR", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html,body{background:var(--bg); color:var(--txt); font-family:var(--font); -webkit-font-smoothing:antialiased;}
+  body{line-height:1.6; letter-spacing:-0.01em; min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(201,162,95,.07), transparent 60%),
+      radial-gradient(900px 500px at 100% 100%, rgba(111,143,184,.05), transparent 60%),
+      var(--bg);}
+  #app{max-width:var(--maxw); margin:0 auto; padding:0 20px;
+    min-height:100vh; display:flex; flex-direction:column;
+    padding-top:env(safe-area-inset-top); padding-bottom:calc(28px + env(safe-area-inset-bottom));}
+  @keyframes bobin{from{opacity:0; transform:translateY(18px) scale(.9);} to{opacity:1; transform:none;}}
+  @keyframes pop{from{opacity:0; transform:translateY(12px) scale(.985);} to{opacity:1; transform:none;}}
+  .brand{display:flex; align-items:center; gap:9px; padding:22px 2px 0; color:var(--txt-3);
+    font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; font-weight:600;}
+  .brand .dot{width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent);}
+  .rhero{text-align:center; padding:22px 0 0;}
+  .rhero img{width:190px; height:auto; margin:0 auto 4px; display:block;
+    animation:bobin .6s cubic-bezier(.2,.9,.3,1.2) both; filter:drop-shadow(0 18px 34px rgba(0,0,0,.6));}
+  .rhero .badge{display:inline-block; font-size:12.5px; font-weight:800; letter-spacing:.1em;
+    padding:6px 14px; border-radius:99px; margin-bottom:10px;}
+  .rhero .code{font-size:52px; font-weight:800; letter-spacing:.04em; line-height:1.1;}
+  .rhero .tname{font-size:23px; font-weight:800; margin-top:4px;}
+  .rhero .tone{color:var(--txt-2); font-size:15px; margin:12px auto 0; max-width:23em; line-height:1.55;}
+  .tA .code,.tA .tname{color:var(--accent-soft);}
+  .tA .badge{color:var(--accent-soft); background:var(--accent-dim); border:1px solid rgba(201,162,95,.3);}
+  .tB .code,.tB .tname{color:var(--cool-soft);}
+  .tB .badge{color:var(--cool-soft); background:var(--cool-dim); border:1px solid rgba(111,143,184,.32);}
+  .tM .code,.tM .tname{color:var(--warn);}
+  .tM .badge{color:var(--warn); background:var(--warn-dim); border:1px solid rgba(224,100,79,.32);}
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg-2));
+    border:1px solid var(--line); border-radius:var(--radius); padding:20px; margin-top:16px;
+    animation:pop .45s ease both;}
+  .card h3{font-size:12.5px; letter-spacing:.1em; color:var(--txt-3); font-weight:800; margin-bottom:15px;}
+  .rx{border-left:2px solid var(--accent); padding-left:15px;}
+  .rx.b{border-left-color:var(--cool);}
+  .rx.warn{border-left-color:var(--warn);}
+  .rx .rxh{font-size:14.5px; font-weight:800; margin-bottom:9px;}
+  .rx ul{list-style:none;}
+  .rx li{font-size:14.5px; color:var(--txt-2); line-height:1.55; padding-left:15px; position:relative; margin-bottom:7px;}
+  .rx li:last-child{margin-bottom:0;}
+  .rx li b{color:var(--txt); font-weight:800;}
+  .rx li::before{content:""; position:absolute; left:0; top:9px; width:5px; height:5px; border-radius:50%; background:var(--accent);}
+  .rx.b li::before{background:var(--cool);}
+  .rx.warn li::before{background:var(--warn);}
+  .rx .who{font-size:12.5px; color:var(--txt-3); margin-top:10px;}
+  .hook{text-align:center; margin-top:26px;}
+  .hook .hq{font-size:22px; font-weight:800; letter-spacing:-0.025em; line-height:1.4;}
+  .hook .hq .hl{color:var(--accent-soft);}
+  .hook .hs{color:var(--txt-3); font-size:13.5px; margin-top:9px;}
+  .cta{display:flex; align-items:center; justify-content:center; gap:8px;
+    width:100%; padding:18px 20px; border:none; border-radius:14px; cursor:pointer; margin-top:16px;
+    font-family:var(--font); font-size:16.5px; font-weight:800; letter-spacing:-0.01em;
+    text-decoration:none; background:linear-gradient(180deg,var(--accent-soft),var(--accent));
+    color:#1a1206; transition:transform .12s ease; box-shadow:0 10px 26px -10px rgba(201,162,95,.6);}
+  .cta:active{transform:translateY(1px) scale(.995);}
+  .foot{color:var(--txt-3); font-size:11.5px; line-height:1.6; text-align:center; margin-top:22px; padding:0 6px;}
+  .foot a{color:var(--txt-3);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="brand"><span class="dot"></span>펭귄랩 · 사업 검증 스타일</div>
+
+  <div class="rhero tB">
+    <img src="../assets/outfit_hiphop_dollar.png" alt="사용 검증형">
+    <div class="badge">사용 신호 우선</div>
+    <div class="code">B형</div>
+    <div class="tname">사용 검증형</div>
+    <div class="tone">사람이 실제로 쓰고 다시 돌아오는 이유를 먼저 확인하는 편이다. 제품 가치의 불확실성을 줄이는 데 강하다.</div>
+  </div>
+
+  <div class="card">
+    <h3>이 방식이 강해지는 조건</h3>
+    <div class="rx b">
+      <div class="rxh">B형 — 사용 검증형</div>
+      <ul><li><b>잘 맞는 상황.</b> 소비자 서비스·커뮤니티·네트워크처럼 반복 사용이 가치의 핵심일 때.</li><li><b>첫 실험.</b> 핵심 행동 하나만 작게 만들고 누가 다시 오는지, 왜 이탈하는지 관찰해.</li><li><b>놓치지 말 것.</b> 사용자가 늘어도 사업은 아닐 수 있다. 수익화 실험 날짜를 미리 잡아둬.</li><li><b>판단 규칙.</b> 칭찬보다 재사용·추천 같은 행동을 보고, 반복 신호가 없으면 문제부터 다시 봐.</li></ul>
+      <div class="who">강점: 실제 사용 가치를 깊게 확인함 · 맹점: 반응을 매출 가능성으로 착각할 수 있음.</div>
+    </div>
+  </div>
+
+  <div class="hook">
+    <div class="hq">근데 <span class="hl">너는</span> 뭘 먼저 보는데?</div>
+    <div class="hs">6문항 · 30초 · 가입 없음</div>
+  </div>
+  <a class="cta" href="../?from=b">나도 30초 테스트하기 →</a>
+
+  <p class="foot">
+    성격이나 성공 가능성을 진단하지 않습니다. 현재 사업 검증 선호를 점검하는 콘텐츠입니다.<br>
+    <a href="../">펭귄랩 · 사업 검증 스타일</a>
+  </p>
+</div>
+</body>
+</html>
