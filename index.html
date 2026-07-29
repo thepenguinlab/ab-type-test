@@ -427,6 +427,8 @@
     padding:11px 22px; border-radius:99px; opacity:0; pointer-events:none;
     transition:opacity .25s, transform .25s; z-index:120; box-shadow:0 10px 30px -8px rgba(0,0,0,.6);}
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  /* 시트가 열려 있으면 토스트를 위로 — 방금 뜬 "유튜브 가서 붙여넣기"를 가리면 안 된다 */
+  body:has(.sheet.open) .toast{bottom:auto; top:calc(18px + env(safe-area-inset-top));}
   hr.div{border:none; border-top:1px solid var(--line); margin:26px 0 2px;}
   .deeper{margin-top:16px; display:block; text-decoration:none;}
 
@@ -743,8 +745,63 @@ function verdictText(s){
 }
 
 /* ---------- state ---------- */
-const state = { view:"landing", i:0, answers:new Array(QUESTIONS.length).fill(null), result:null, t0:null, elapsed:null };
+const state = { view:"landing", i:0, answers:new Array(QUESTIONS.length).fill(null), result:null, t0:null, elapsed:null, sheet:false };
 const root = document.getElementById("app");
+
+/* ---------- 히스토리(뒤로가기) ----------
+   화면을 innerHTML 로 갈아끼우는 구조라 주소가 안 바뀐다 → 브라우저 입장에선 페이지가 하나뿐이고
+   뒤로가기 = 사이트 이탈이 된다. 그래서 단계마다 history 항목을 쌓는다.
+   주소는 그대로 두고 history.state 에만 단계를 담는다(문항 번호를 URL 에 노출하지 않는다).
+   sid = 로드마다 새로 뽑는 표식. 새로고침 후 남아 있는 이전 세션 항목은 랜딩으로 되돌린다. */
+const NAV_APP = "penguinlab-abtype";
+const NAV_SID = Math.random().toString(36).slice(2) + Date.now().toString(36);
+let navDepth = 0;          // 우리가 쌓은 항목 수 (다시 하기에서 통째로 되감을 때 쓴다)
+let navPendingReset = false;
+
+function navSnap(){ return {app:NAV_APP, sid:NAV_SID, d:navDepth, view:state.view, i:state.i, sheet:!!state.sheet}; }
+function navReplace(){ try{ history.replaceState(navSnap(), ""); }catch(e){} }
+function navPush(){ navDepth++; try{ history.pushState(navSnap(), ""); }catch(e){ navDepth--; } }
+/* 앞으로 가는 전환은 전부 여기를 지난다 — 상태 변경 → 단계 쌓기 → 렌더 */
+function navGo(mutate){ mutate(); navPush(); render(); }
+/* 뒤로 가는 경로(‹ 이전 버튼 · 시트 닫기)는 뒤로가기 그 자체를 쓴다.
+   버튼과 시스템 제스처가 같은 코드를 지나므로 두 경로가 어긋날 수 없다. */
+function navBack(){ history.back(); }
+
+function setSheet(open){
+  state.sheet = !!open;
+  const sh = document.getElementById("sheet");
+  if(sh) sh.classList.toggle("open", state.sheet);
+}
+
+function navApply(s){
+  if(s.view==="result" && !state.result){ navResetToLanding(); return; }  // 되돌아갈 결과가 없다 — 빈 화면 방지
+  const sameScreen = (s.view===state.view && s.i===state.i);
+  state.view = s.view; state.i = s.i;
+  if(sameScreen){ setSheet(s.sheet); return; }   // 시트만 여닫는 경우 — 재렌더 없이 결과 화면 유지
+  state.sheet = !!s.sheet;
+  render();
+}
+
+function navResetToLanding(){
+  state.view="landing"; state.i=0; state.sheet=false;
+  state.answers=new Array(QUESTIONS.length).fill(null);
+  state.result=null; state.elapsed=null; state.t0=null;
+  navDepth = 0; navReplace(); render();
+}
+
+/* 다시 하기 = 쌓아둔 단계를 통째로 되감아 첫 항목으로. 그래야 이후 뒤로가기가 정상적으로 사이트를 나간다. */
+function navRestart(){
+  if(navDepth>0){ navPendingReset = true; history.go(-navDepth); }
+  else navResetToLanding();
+}
+
+window.addEventListener("popstate", function(e){
+  const s = e.state;
+  if(!s || s.app!==NAV_APP){ navPendingReset=false; return; }   // 우리 항목이 아니면 브라우저에 맡긴다
+  navDepth = s.d || 0;
+  if(navPendingReset || s.sid!==NAV_SID){ navPendingReset=false; navResetToLanding(); return; }
+  navApply(s);
+});
 
 function render(){
   window.scrollTo(0,0);
@@ -755,6 +812,14 @@ function render(){
   else if(state.view==="test") root.innerHTML = viewTest();
   else root.innerHTML = viewResult();
   bind();
+  if(state.sheet) setSheet(true);
+  if(state.view==="result" && state.result){
+    // 뒤로/앞으로 돌아온 결과 화면에서도 게이지 손잡이가 제자리를 찾게 한다
+    requestAnimationFrame(()=>{
+      const k = document.getElementById("knob");
+      if(k) setTimeout(()=>{ k.style.left = state.result.pos + "%"; }, 60);
+    });
+  }
 }
 
 function viewLanding(){
@@ -943,14 +1008,12 @@ function pick(v){
   const el = root.querySelector(`.pick[data-pick="${v}"]`);
   if(el){ root.querySelectorAll(".pick").forEach(x=>x.classList.remove("on")); el.classList.add("on"); }
   setTimeout(()=>{
-    if(state.i < QUESTIONS.length-1){ state.i++; render(); }
+    if(state.i < QUESTIONS.length-1){ navGo(()=>{ state.i++; }); }
     else {
-      state.result = score(state.answers);
-      state.elapsed = state.t0 ? ((Date.now()-state.t0)/1000).toFixed(1) : null;
-      state.view = "result"; render();
-      requestAnimationFrame(()=>{
-        const k = document.getElementById("knob");
-        if(k) setTimeout(()=>{ k.style.left = state.result.pos + "%"; }, 60);
+      navGo(()=>{
+        state.result = score(state.answers);
+        state.elapsed = state.t0 ? ((Date.now()-state.t0)/1000).toFixed(1) : null;
+        state.view = "result";
       });
     }
   }, 150);
@@ -960,13 +1023,13 @@ function bind(){
   root.querySelectorAll("[data-act]").forEach(el=>{
     el.addEventListener("click", e=>{
       const act = el.getAttribute("data-act");
-      if(act==="start"){ state.answers=new Array(QUESTIONS.length).fill(null); state.i=0; state.t0=Date.now(); state.view="test"; render(); }
-      else if(act==="back"){ if(state.i>0){ state.i--; render(); } }
-      else if(act==="restart"){ state.answers=new Array(QUESTIONS.length).fill(null); state.i=0; state.result=null; state.elapsed=null; state.view="landing"; render(); }
+      if(act==="start"){ navGo(()=>{ state.answers=new Array(QUESTIONS.length).fill(null); state.i=0; state.t0=Date.now(); state.view="test"; }); }
+      else if(act==="back"){ if(state.i>0) navBack(); }
+      else if(act==="restart"){ navRestart(); }
       else if(act==="copy"){ e.preventDefault(); copyShare(); }
       else if(act==="share"){ e.preventDefault(); doShare(); }
-      else if(act==="openSheet"){ e.preventDefault(); const sh=document.getElementById("sheet"); if(sh) sh.classList.add("open"); }
-      else if(act==="closeSheet"){ e.preventDefault(); const sh=document.getElementById("sheet"); if(sh) sh.classList.remove("open"); }
+      else if(act==="openSheet"){ e.preventDefault(); state.sheet=true; navPush(); setSheet(true); }
+      else if(act==="closeSheet"){ e.preventDefault(); if(history.state && history.state.app===NAV_APP && history.state.sheet) navBack(); else setSheet(false); }
     });
   });
   root.querySelectorAll(".pick").forEach(el=>{
@@ -994,7 +1057,7 @@ function revealYT(){
 function copyShare(msg){
   const text = shareString();
   if(!text) return;
-  const done = ()=>{ showToast(msg||"복사됐다 · 유튜브 댓글에 붙여넣어"); revealYT(); };
+  const done = ()=>{ showToast(msg||"복사됐다 · 댓글에 붙여넣어"); revealYT(); };
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
   } else fallbackCopy(text,done);
@@ -1044,6 +1107,7 @@ window.__selfCheck = (function(){
   return out;
 })();
 
+navReplace();   // 첫 항목을 랜딩 단계로 확정 — 여기서 뒤로가면 그때만 사이트를 나간다
 render();
 </script>
 </body>
